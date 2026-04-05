@@ -1,43 +1,354 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<title>Download Our Catalog</title>
+    <!-- 5）自动适配手机、平板、电脑（响应式设计关键） -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
+    <title>Product Catalog Download</title>
 
-/* 设置整个页面字体 */
-body {
-    font-family: Arial;
-    text-align: center;
-    padding: 40px;
-}
+    <style>
+        /* =========================
+           背景图片设置（功能1）
+           你只需要把 background.jpg 放到同一目录
+        ========================= */
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
 
-/* 标题样式 */
-h1 {
-    margin-bottom: 30px;
-}
+            /* 背景图片 */
+            background-image: url('background.jpg');
+            /* 如果你希望整张图片完整显示（不被裁剪），用 contain */
+            /* 让图片宽度铺满屏幕，同时保证图片完整不被裁剪（页面可上下滚动） */
+            background-size: 100% auto;
+            background-position: center;
+            background-repeat: no-repeat;  /* 防止图片重复 */
+            min-height: 100vh;             /* 确保页面至少占满整个屏幕高度 */
+            background-attachment: fixed;
 
-/* 每个下载链接样式 */
-a {
-    display: block;
-    font-size: 20px;
-    margin: 15px;
-    color: blue;
-}
+            /* 半透明遮罩，让文字更清晰 */
+            background-color: rgba(255, 255, 255, 0.85);
+            background-blend-mode: lighten;
+        }
 
-</style>
+        /* 页面主容器 */
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
 
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        /* 文件卡片样式 */
+        .file-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            background-color: #f7f7f7;
+            transition: transform 0.15s ease;
+        }
+
+        .file-card:hover {
+            transform: scale(1.02);
+        }
+
+        .file-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .file-size {
+            color: #777;
+            font-size: 14px;
+        }
+
+        /* 下载按钮 */
+        .download-btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* 一键下载全部按钮（功能6） */
+        .download-all {
+            display: block;
+            width: 100%;
+            margin-bottom: 25px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+
+        .download-all:hover {
+            background-color: #1e7e34;
+        }
+
+        /* 手机优化 */
+        @media (max-width: 600px) {
+            .file-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .download-btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<h1>Download Our Product Catalog</h1>
+<div class="container">
 
-<a href="2023_HONGYI_KETTLE.pdf" download>2023_HONGYI_KETTLE.pdf</a><a href="2024_HONGYI_KETTLE.pdf" download>2024_HONGYI_KETTLE.pdf</a><a href="2025_HONGYI_KETTLE.pdf" download>2025_HONGYI_KETTLE.pdf</a><a href="HONGYI_KETTLE.pdf" download>HONGYI_KETTLE.pdf</a><a href="HONGYI_WIRE_ITEM_1.pdf" download>HONGYI_WIRE_ITEM_1.pdf</a>
+    <!-- 页面标题（功能3：专业文字） -->
+    <h1>Welcome to Our Product Catalog</h1>
+
+    <p class="subtitle">
+        Please download the latest catalogs below.<br>
+        All files are in PDF format.
+    </p>
+
+    <!-- 一键下载全部按钮（功能6） -->
+    <!-- 注意：需要你自己准备一个 all_catalogs.zip 文件 -->
+    <button class="download-all" onclick="downloadAll()">
+        Download All Catalogs (ZIP)
+    </button>
+
+    <!-- 文件列表容器（功能4：自动读取文件） -->
+    <div id="fileList"></div>
+
+</div>
+
+<script>
+
+/* =====================================
+   功能4：自动读取文件列表
+   原理：读取 GitHub 目录内容
+   你需要修改：用户名、仓库名
+===================================== */
+
+const username = "HONGYI-Kettles";   // 改成你的 GitHub 用户名
+const repo = "catalog";       // 改成你的仓库名
+const folder = "";                         // 如果在子目录，比如 catalog 就写 "catalog"
+
+const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${folder}`;
+
+/* =====================================
+   获取文件大小（KB / MB）
+===================================== */
+
+function formatFileSize(bytes) {
+    if (bytes >= 1024 * 1024) {
+        return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+    }
+    return (bytes / 1024).toFixed(2) + " KB";
+}
+
+/* =====================================
+   生成更友好的文件名显示
+   例如：
+   2026_Product_Catalog.pdf
+   -> Product Catalog 2026
+===================================== */
+
+function formatDisplayName(filename) {
+
+    let name = filename.replace(".pdf", "");
+
+    const parts = name.split("_");
+
+    /* 判断第一个是不是年份（4位数字） */
+    const isYear = /^\d{4}$/.test(parts[0]);
+
+    if (isYear && parts.length > 1) {
+
+        const year = parts[0];
+
+        const rest = parts.slice(1).join(" ");
+
+        return rest + " " + year;
+    }
+
+    /* 如果不是年份，就保持正常顺序 */
+    return parts.join(" ");
+}
+
+/* =====================================
+   功能2：自动排序（按文件名倒序）
+   最新年份会自动排最上面
+===================================== */
+
+function sortFiles(files) {
+    /*
+       更智能排序逻辑：
+       1）如果文件名里包含年份（如 2023）→ 按年份从新到旧排序
+       2）如果没有年份 → 按名称排序
+    */
+
+    function extractYear(name) {
+        const match = name.match(/(20\d{2})/);
+        return match ? parseInt(match[1]) : 0;
+    }
+
+    return files.sort((a, b) => {
+
+        const yearA = extractYear(a.name);
+        const yearB = extractYear(b.name);
+
+        if (yearA !== yearB) {
+            return yearB - yearA;
+        }
+
+        return a.name.localeCompare(b.name);
+    });
+}
+
+/* =====================================
+   创建文件卡片
+===================================== */
+
+function createFileCard(file) {
+
+    const container = document.createElement("div");
+
+    container.className = "file-card";
+
+    const info = document.createElement("div");
+
+    info.className = "file-info";
+
+    const name = document.createElement("div");
+
+    name.className = "file-name";
+
+    name.textContent = formatDisplayName(file.name);
+
+    const size = document.createElement("div");
+
+    size.className = "file-size";
+
+    size.textContent = "Size: " + formatFileSize(file.size);
+
+    info.appendChild(name);
+
+    info.appendChild(size);
+
+    const button = document.createElement("button");
+
+    button.className = "download-btn";
+
+    button.textContent = "Download";
+
+    button.onclick = () => {
+        window.open(file.download_url, "_blank");
+    };
+
+    container.appendChild(info);
+
+    container.appendChild(button);
+
+    return container;
+}
+
+/* =====================================
+   主函数：加载文件列表
+===================================== */
+
+async function loadFiles() {
+
+    try {
+
+        const response = await fetch(apiUrl);
+
+        const data = await response.json();
+
+        /* 只筛选 PDF 文件 */
+        const pdfFiles = data.filter(file =>
+            file.name.toLowerCase().endsWith(".pdf")
+        );
+
+        /* 自动排序 */
+        const sortedFiles = sortFiles(pdfFiles);
+
+        const list = document.getElementById("fileList");
+
+        sortedFiles.forEach(file => {
+
+            const card = createFileCard(file);
+
+            list.appendChild(card);
+
+        });
+
+    }
+
+    catch (error) {
+
+        console.error("Error loading files:", error);
+
+        document.getElementById("fileList").innerHTML =
+            "Failed to load files.";
+
+    }
+}
+
+/* =====================================
+   功能6：一键下载全部
+   需要你准备一个 ZIP 文件
+   例如：
+
+   all_catalogs.zip
+
+===================================== */
+
+function downloadAll() {
+
+    window.open("HONGYI_catalog.zip", "_blank");
+
+}
+
+/* 页面加载时自动执行 */
+
+loadFiles();
+
+</script>
 
 </body>
 </html>
-
