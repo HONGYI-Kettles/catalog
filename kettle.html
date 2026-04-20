@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Kettle Catalog</title>
+
+<style>
+
+body {
+    margin: 0;
+    font-family: Arial;
+    text-align: center;
+}
+
+.topbar {
+    background: #333;
+    padding: 15px;
+}
+
+.topbar a {
+    color: white;
+    margin: 10px;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.viewer img {
+    width: 100%;
+    max-width: 1600px;
+    margin: 10px auto;
+    display: block;
+    cursor: zoom-in;
+}
+
+</style>
+
+<script>
+
+function loadImages() {
+
+    var viewer = document.getElementById("viewer");
+
+    for (var i = 1; i <= 100; i++) {
+
+        var num = i.toString().padStart(2, '0');
+
+        var img = document.createElement("img");
+
+        img.src = "kettle/" + num + ".jpeg";
+
+        img.onerror = function() {
+            this.style.display = 'none';
+        };
+
+        viewer.appendChild(img);
+
+    }
+
+}
+
+</script>
+
+</head>
+
+<body onload="loadImages()">
+
+<div class="topbar">
+
+<a href="index.html">← Back</a>
+
+<a href="HONGYI_KETTLE.pdf" download>
+Download PDF
+</a>
+
+</div>
+
+<div id="viewer" class="viewer"></div>
+
+</body>
+</html>
