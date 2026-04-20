@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WIRE ITEM Catalog</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #fff;
+}
+
+/* 顶部栏 */
+.topbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: #f6c1c1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    box-sizing: border-box;
+    z-index: 999;
+}
+
+.topbar a {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    background: rgba(255,255,255,0.6);
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+
+.title {
+    font-weight: bold;
+}
+
+/* 图片 */
+.container {
+    margin-top: 70px;
+}
+
+img {
+    width: 100%;
+    max-width: 1200px;
+    display: block;
+    margin: 0 auto;
+}
+</style>
+
+<script>
+window.onload = function() {
+
+    let container = document.getElementById("container");
+
+    for (let i = 1; i <= 200; i++) {
+
+        let num = String(i).padStart(2, "0");
+
+        let img = document.createElement("img");
+
+        img.src = "wire/" + num + ".jpg";
+
+        img.onerror = function() {
+            this.src = "wire/" + num + ".jpeg";
+        };
+
+        img.onerror = function() {
+            this.style.display = "none";
+        };
+
+        container.appendChild(img);
+    }
+};
+</script>
+
+</head>
+
+<body>
+
+<div class="topbar">
+    <a href="index.html">← Back</a>
+    <div class="title">WIRE ITEM</div>
+    <a href="HONGYI_WIRE_ITEM.pdf" download>Download PDF</a>
+</div>
+
+<div id="container" class="container"></div>
+
+</body>
+</html>
