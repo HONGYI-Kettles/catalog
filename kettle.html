@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+    margin: 10px;
+}
+</style>
+
+<script>
+let page = 1;
+
+function showPage(n) {
+    document.getElementById("catalog").src =
+    "kettle/" + String(n).padStart(2,'0') + ".jpeg";
+
+    document.getElementById("pageNumber").innerText =
+    n;
+}
+
+function nextPage() {
+    page++;
+    showPage(page);
+}
+
+function prevPage() {
+    if(page > 1) {
+        page--;
+        showPage(page);
+    }
+}
+</script>
+
+</head>
+
+<body>
+
+<div class="header">
+
+<a class="button" href="index.html">
+← Back
+</a>
+
+<div>
+Page <span id="pageNumber">1</span>
+</div>
+
+<a class="button" href="HONGYI_KETTLE.pdf">
+Download PDF
+</a>
+
+</div>
+
+<div class="viewer">
+
+<img id="catalog"
+src="kettle/01.jpeg">
+
+<div class="page">
+
+<button onclick="prevPage()">
+Previous
+</button>
+
+<button onclick="nextPage()">
+Next
+</button>
+
+</div>
+
+</div>
+
+</body>
+</html>
